@@ -181,3 +181,11 @@ def scale_to_unit_interval(ndar, eps=1e-8):
 	ndar -= ndar.min()
 	ndar *= 1.0 / (ndar.max() + eps)
 	return ndar
+#%%
+def as_floatX(variable):
+    if isinstance(variable, float):
+        return np.cast[theano.config.floatX](variable)
+
+    if isinstance(variable, np.ndarray):
+        return np.cast[theano.config.floatX](variable)
+    return theano.tensor.cast(variable, theano.config.floatX)
