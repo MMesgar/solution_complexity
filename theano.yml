@@ -66,6 +66,7 @@ dependencies:
 - numpy=1.13.0=py27_0
 - numpydoc=0.6.0=py27_0
 - openssl=1.0.2l=0
+- pandas=0.20.2=np113py27_0
 - pandocfilters=1.4.1=py27_0
 - path.py=10.3.1=py27_0
 - pathlib2=2.2.1=py27_0
