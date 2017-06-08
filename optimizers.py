@@ -3,8 +3,10 @@
 
 import theano
 from collections import OrderedDict
-from utils import *
-
+from utils import as_floatX
+import numpy as np
+import theano.tensor as T
+#%%
 """
 references: 
 https://gist.github.com/SnippyHolloW/67effa81dd1cd5a488b4
