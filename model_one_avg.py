@@ -24,19 +24,7 @@ import activations
 from evaluation import fold_output_evaluation,load_problem_solutions
 from collections import defaultdict
 rng = np.random.RandomState(seed = 9834)
-#%%
-def debug_print(var, name, PRINT_VARS = True):
-    if PRINT_VARS is False:
-        return var
-    return theano.printing.Print(name)(var)
-
-def compute_similarity(v1,v2):
-    d = v1 - v2
-    d2 = d**2
-    s = 1.+ d2.sum(axis=1,keepdims=True)
-    output = 1. / s
-    return output
- 
+from utils import debug_print,shared_dataset,get_idx_from_sent,make_idx_data_cv,print_errors_in_file
 #%%
 def train_model_one_avg(rng,
                    datasets,
@@ -248,138 +236,24 @@ def train_model_one_avg(rng,
             test_perf = 1 - test_error         
     return test_perf, errors, labels_probs
 #%%
-def shared_dataset(data_xy, borrow=True):
-        """ Function that loads the dataset into shared variables
-
-        The reason we store our dataset in shared variables is to allow
-        Theano to copy it into the GPU memory (when code is run on GPU).
-        Since copying data into the GPU is slow, copying a minibatch everytime
-        is needed (the default behaviour if the data is not in a shared
-        variable) would lead to a large decrease in performance.
-        """
-        data_x, data_y = data_xy
-        shared_x = theano.shared(np.asarray(data_x,
-                                               dtype=theano.config.floatX),
-                                 borrow=borrow)
-        shared_y = theano.shared(np.asarray(data_y,
-                                               dtype=theano.config.floatX),
-                                 borrow=borrow)
-        return shared_x, T.cast(shared_y, 'int32')
-
-#%%
-def get_idx_from_sent(sent, word_idx_map, max_l=51, filter_h=5):
-    """
-    Transforms sentence into a list of indices. Pad with zeroes.
-    """
-    x = []
-    pad = filter_h - 1
-    for i in xrange(pad):
-        x.append(0)
-    words = sent.split()
-    for word in words:
-        if word in word_idx_map:
-            x.append(word_idx_map[word])
-    while len(x) < max_l+2*pad:
-        x.append(0)
-    return x
-
-
-def make_idx_data_cv(dataset, word_idx_map, fold,  max_l=51,filter_h=5):
-    """
-    Transforms sentences into a 2-d matrix.
-    """
-    train_probs, dev_probs, test_probs = map(int,fold[0]), map(int,fold[1]), map(int,fold[2])
-
-    train_x,train_y, dev_x, dev_y, test_x, test_y= [],[],[],[],[],[]
-    test_dict = defaultdict(lambda:{})
-    for rev in dataset:
-        instance_x = []
-        prob_id = int(rev["pid"])
-        sent1 = get_idx_from_sent(rev["text1"], word_idx_map, max_l,filter_h) 
-        sent2_id = int(rev["id2"])
-        sent2 = get_idx_from_sent(rev["text2"], word_idx_map, max_l,filter_h)
-        sent3_id = int(rev["id3"])
-        sent3 = get_idx_from_sent(rev["text3"], word_idx_map, max_l,filter_h)
-        instance_x = sent1 + sent2 + sent3
-        label = rev["y"]
-        
-        if prob_id in list(train_probs):
-            train_x.append(instance_x)
-            train_y.append(label)
-        elif prob_id in list(dev_probs):
-            dev_x.append(instance_x)
-            dev_y.append(label)
-        elif prob_id in list(test_probs):
-            test_x.append(instance_x)
-            test_y.append(label)
-            test_dict[prob_id]['prob_txt']=rev["text1"]
-            test_dict[prob_id][rev["text2"]]=sent2_id
-            test_dict[prob_id][rev["text3"]]=sent3_id
-        else:
-            print('Problem id %d is not in any places (train,dev,test set) in the fold.'%prob_id)
-            raise
-             
-    train = (np.array(train_x,dtype="int"), np.array(train_y,dtype='int'))
-    validation = (np.array(dev_x,dtype="int"), np.array(dev_y,dtype='int'))
-    test = (np.array(test_x,dtype="int"), np.array(test_y,dtype='int'))
-    return [train, validation, test], test_dict  
-
-def print_errors_in_file(labels_prob, errors, testset, testset_dict, word_idx_map, save_to):
-    output = []
-    idx_word_map = {k:v for v,k in word_idx_map.items()}
-    test_x  = testset[0]
-    test_y = testset[1]
-    found_problems = []
-    for i, inst in enumerate(test_x):
-       probs_0 = labels_prob[i,0]
-       probs_1 = labels_prob[i,1]
-       error = errors[i]
-       gold = test_y[i]
-       len_each_sent = len(inst) / 3
-       prob = inst[:len_each_sent]
-       inst1 = inst[len_each_sent:2*len_each_sent]
-       inst2 = inst[2*len_each_sent:] 
-       problem = [idx_word_map[word_idx] for word_idx in prob if word_idx>0]
-       sent1 = [idx_word_map[word_idx] for word_idx in inst1 if word_idx>0]
-       sent2 = [idx_word_map[word_idx] for word_idx in inst2 if word_idx>0]
-       problem  = ' '.join(problem)
-       sent1 = ' '.join(sent1)
-       sent2 = ' '.join(sent2)
-       
-       # find pid,
-       problem_id = -1
-       for pid, values in testset_dict.items():
-           if values.has_key(sent1) and values.has_key(sent2) and values['prob_txt']==problem and problem_id==-1:
-               problem_id = pid
-               sent1_id = values[sent1]
-               sent2_id = values[sent2]
-       #make sure that we faound pid
-       assert problem_id != -1 
-       if problem_id not in found_problems:
-           found_problems.append(problem_id)
-       
-       sent = str(problem_id) +'@@' + problem + '@@' + \
-       str(sent1_id)+'@@' + sent1 + '@@' +str(sent2_id) +'@@'+ sent2
-       
-       if error == 1:
-           line = str(probs_0) +'@@' + str(probs_1) + '@@'+ str(1-gold) + '@@'+ str(gold) + '@@'+ sent
-       else:
-           line = str(probs_0) +'@@' + str(probs_1) + '@@'+ str(gold) + '@@'+ str(gold) + '@@'+ sent 
-        
-       output.append(line)
-       
-    content = '\n'.join(output)
-    with open(save_to, 'w') as err_file:
-       err_file.write(content)
-    return found_problems
-#%%
+sys.argv = ['',
+            '-nonstatic',
+            '-word2vec',
+            1,
+            2,
+            0.5,
+            './data/corpus_all/',
+            './evalutions/nonstatic/',
+            600 # max_sent_len
+            ]
 if __name__=="__main__":
     print "local start time :", time.asctime(time.localtime(time.time()) )
     # initialization
     sys.setrecursionlimit(10000)
     theano.config.on_unused_input ='ignore' 
     theano.config.floatX = 'float32'
-    max_sent_len = 583
+    max_sent_len = int(sys.argv[8])
+    print "max_sent_len = %d"%max_sent_len    
     
     in_dir = str(sys.argv[6])
     dataset_file = in_dir+'dataset_triplet.p'
@@ -418,7 +292,7 @@ if __name__=="__main__":
     corpus_path = in_dir+'corpus.txt'
     problem_solutions = load_problem_solutions(corpus_path, clean_string= True)
 
- # keep performance of each fold in results
+    # keep performance of each fold in results
     folds_acc = []
     folds_tau = []
     folds_rank1_acc = []
@@ -426,11 +300,15 @@ if __name__=="__main__":
     folds_rank_both_acc= []
     # iterate over each fold
     for i, fold in enumerate(folds):
-        error_file_path = ''
+        #if i>0:
+	#    continue
+
+	error_file_path = ''
+	filter_sizes= [4,5]
 
         #construct train and test sets
-        datasets, test_dict = make_idx_data_cv(ds, word_idx_map, fold,
-                                    max_l=max_sent_len,filter_h=5)
+        datasets, test_dict = make_idx_data_cv(rng, ds, word_idx_map, fold,
+                                    max_l=max_sent_len,filter_h=np.max(filter_sizes))
     
         print "processing fold = %d"%i
         print "number of problems in train_set: %d in valid_set: %d and test_Set: %d"%(len(fold[0]), len(fold[1]), len(fold[2]))
@@ -439,27 +317,25 @@ if __name__=="__main__":
         print "number of test samples (triplets)= %d"%datasets[2][0].shape[0]
         print "number of samples testset (problem_id)%d"%len(test_dict.keys())
         
-        perf, errors, labels_prob = train_model_one_avg(rng,
+        perf, errors, labels_prob, Words = train_model_one_avg(rng,
                               datasets,
                               U,
-                              lr_decay=0.95,
-                              filter_hs=[3,4],
+                              lr_decay=0.9,
+                              filter_hs=filter_sizes,
                               conv_non_linear="relu",
-                              hidden_units=[100,500,500,2], 
+                              hidden_units=[500,1000,2], 
                               shuffle_batch=True, 
                               n_epochs=n_epochs, 
-                              sqr_norm_lim=10.0,
+                              sqr_norm_lim=9.0,
                               non_static=non_static,
                               batch_size=batch_size,
-                              activations = [activations.Tanh,activations.Tanh,activations.Tanh],
-                              dropout_rate=[0.0,0.0,0.0],
-                              cost_function='neg_log_likelihood')
+                              activations=[activations.Iden,activations.ReLU,activations.ReLU],
+                              dropout_rate=[dropout_rate,dropout_rate,dropout_rate])
         
         print "test perf:%f%% "%(perf*100)
         folds_acc.append(perf)
         error_file_path += (output_dir+'fold'+str(i)+'.error')
         found_problems = print_errors_in_file(labels_prob, errors, datasets[2], test_dict, word_idx_map, error_file_path)
-        
         print('number of found_problems in error:%d'%len(found_problems))
         
         fold_tau, results, acc = fold_output_evaluation(fold_path=error_file_path,
@@ -471,6 +347,7 @@ if __name__=="__main__":
         folds_rank1_acc.append(acc[0])
         folds_rankn_acc.append(acc[1])
         folds_rank_both_acc.append(acc[2])
+
         
     # compute the final results
     print('The final accuracy is: %f'%np.mean(folds_acc))
@@ -480,7 +357,4 @@ if __name__=="__main__":
     print('The final rank_both accuracy is: %f'%(np.mean(folds_rank_both_acc)))
     print "local end time :", time.asctime(time.localtime(time.time()) )
     print('Done')
-
-
-
 
