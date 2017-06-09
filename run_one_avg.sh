@@ -15,6 +15,6 @@ exp_id='one_avg_2_3'
 OUT_DIR='./evalutions/'$exp_id'/'
 IN_DIR='./data/corpus_2_3/'
 
-mkdir $OUT_DIR
+mkdir -p $OUT_DIR
 
 THEANO_FLAGS=device=$device,floatX=float32,lib.cnmem=0.7 python -u model_one_avg.py $MODE $WRD2VEC $N_EPOCHS $BATCH_SIZE  $DROPOUT_RATE $IN_DIR $OUT_DIR $max_sl
