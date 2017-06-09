@@ -211,7 +211,8 @@ def train_model_one_avg(rng,
     val_perf = 0
     test_perf = 0       
     cost_epoch = 0    
-    while (epoch < n_epochs):
+    #while (epoch < n_epochs):
+    while(True):
         cost_epoch = 0
         start_time = time.time()
         epoch = epoch + 1
@@ -232,7 +233,9 @@ def train_model_one_avg(rng,
         if val_perf >= best_val_perf:
             best_val_perf = val_perf
             test_error, errors, labels_probs = test_model_all(test_set_x,test_set_y)        
-            test_perf = 1 - test_error         
+            test_perf = 1 - test_error
+        if train_perf>90:
+            break
     return test_perf, errors, labels_probs
 #%%
 #sys.argv = ['',
@@ -322,15 +325,15 @@ if __name__=="__main__":
                               datasets,
                               U,
                               lr_decay=0.95,
-                              hidden_units=[15000,
-                                            15000,
-                                            15000,
-                                            15000,
+                              hidden_units=[5000,
+                                            5000,
+                                            5000,
+                                            5000,
                                             2], 
                               shuffle_batch=True, 
                               n_epochs=n_epochs, 
                               sqr_norm_lim=9.0,
-                              non_static=False,
+                              non_static=non_static,
                               batch_size=batch_size,
                               activations=[activations.ReLU,
                                            activations.ReLU,
