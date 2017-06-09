@@ -233,16 +233,16 @@ def train_model_one_avg(rng,
             test_perf = 1 - test_error         
     return test_perf, errors, labels_probs
 #%%
-#sys.argv = ['',
-#            '-nonstatic',
-#            '-word2vec',
-#            1,
-#            2,
-#            0.5,
-#            './data/corpus_all/',
-#            './evalutions/nonstatic/',
-#            600 # max_sent_len
-#            ]
+sys.argv = ['',
+            '-nonstatic',
+            '-word2vec',
+            1,
+            2,
+            0.5,
+            './data/corpus_all/',
+            './evalutions/nonstatic/',
+            600 # max_sent_len
+            ]
 if __name__=="__main__":
     print "local start time :", time.asctime(time.localtime(time.time()) )
     # initialization
@@ -297,15 +297,15 @@ if __name__=="__main__":
     folds_rank_both_acc= []
     # iterate over each fold
     for i, fold in enumerate(folds):
-        #if i>0:
-	#    continue
-
-	error_file_path = ''
-	filter_sizes= [4,5]
+        error_file_path = ''
+        
 
         #construct train and test sets
-        datasets, test_dict = make_idx_data_cv(rng, ds, word_idx_map, fold,
-                                    max_l=max_sent_len,filter_h=np.max(filter_sizes))
+        datasets, test_dict = make_idx_data_cv(rng, ds,
+                                               word_idx_map, 
+                                               fold,
+                                               max_l=max_sent_len,
+                                               filter_h=1)
     
         print "processing fold = %d"%i
         print "number of problems in train_set: %d in valid_set: %d and test_Set: %d"%(len(fold[0]), len(fold[1]), len(fold[2]))
@@ -318,8 +318,6 @@ if __name__=="__main__":
                               datasets,
                               U,
                               lr_decay=0.9,
-                              filter_hs=filter_sizes,
-                              conv_non_linear="relu",
                               hidden_units=[500,1000,2], 
                               shuffle_batch=True, 
                               n_epochs=n_epochs, 
