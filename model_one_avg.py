@@ -211,8 +211,7 @@ def train_model_one_avg(rng,
     val_perf = 0
     test_perf = 0       
     cost_epoch = 0    
-    #while (epoch < n_epochs):
-    while(True):
+    while (epoch < n_epochs):
         cost_epoch = 0
         start_time = time.time()
         epoch = epoch + 1
@@ -234,8 +233,6 @@ def train_model_one_avg(rng,
             best_val_perf = val_perf
             test_error, errors, labels_probs = test_model_all(test_set_x,test_set_y)        
             test_perf = 1 - test_error
-        if train_perf>90:
-            break
     return test_perf, errors, labels_probs
 #%%
 #sys.argv = ['',
@@ -302,8 +299,6 @@ if __name__=="__main__":
     folds_rank_both_acc= []
     # iterate over each fold
     for i, fold in enumerate(folds):
-        if i>0:
-            break
         error_file_path = ''
         
 
@@ -327,8 +322,6 @@ if __name__=="__main__":
                               lr_decay=0.95,
                               hidden_units=[5000,
                                             5000,
-                                            5000,
-                                            5000,
                                             2], 
                               shuffle_batch=True, 
                               n_epochs=n_epochs, 
@@ -337,14 +330,11 @@ if __name__=="__main__":
                               batch_size=batch_size,
                               activations=[activations.ReLU,
                                            activations.ReLU,
-                                           activations.ReLU,
-                                           activations.ReLU,
                                            activations.Iden],
                               dropout_rate=[dropout_rate,
                                             dropout_rate,
-                                            dropout_rate,
-                                            dropout_rate,
-                                            dropout_rate])
+                                            dropout_rate
+                                            ])
         
         print "test perf:%f%% "%(perf*100)
         folds_acc.append(perf)
