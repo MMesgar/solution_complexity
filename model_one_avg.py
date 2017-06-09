@@ -102,7 +102,9 @@ def train_model_one_avg(rng,
     # cost function can be cross-entropy or negative log-likelihood
     cost = classifier.negative_log_likelihood(y) 
     dropout_cost = classifier.dropout_negative_log_likelihood(y) 
-    grad_updates = sgd_updates_adadelta(params, dropout_cost, lr_decay, 1e-6, sqr_norm_lim)
+    grad_updates = sgd_updates_adadelta(params, dropout_cost, 
+                                        lr_decay, 1e-6, 
+                                        sqr_norm_lim)
     
     # datasets[0] is train set
     num_train_samples = input_train[0].shape[0]
@@ -132,9 +134,9 @@ def train_model_one_avg(rng,
     train_set_x = new_data[0]
     train_set_y = new_data[1]
  
-    
-    val_set_x = input_valid[0] 
-    val_set_y = input_valid[1]
+    indices = rng.permutation(input_valid[0].shape[0])
+    val_set_x = input_valid[0][indices]
+    val_set_y = input_valid[1][indices]
     n_val_batches = val_set_x.shape[0] / batch_size
     
     #build test_set
