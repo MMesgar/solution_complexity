@@ -30,18 +30,15 @@ def train_model_one_avg(rng,
                    datasets,
                    U,
                     sent_w=300, 
-                    filter_hs=[3,4,5],#filter width - number of words
                     hidden_units=[100,1], 
                     dropout_rate=[0.5],
                     shuffle_batch=True,
                     n_epochs=25, 
                     batch_size=2, 
                     lr_decay = 0.95,
-                    conv_non_linear="relu",
                     activations=[activations.Iden],
                     sqr_norm_lim=9,
-                    non_static=True,
-                    cost_function='hinge'
+                    non_static=True
                     ):
     
     input_train = datasets[0]
@@ -315,9 +312,9 @@ if __name__=="__main__":
         print "number of training samples (triplets) =%d"%datasets[0][0].shape[0]
         print "number of validation samples (triplets) = %d"%datasets[1][0].shape[0]
         print "number of test samples (triplets)= %d"%datasets[2][0].shape[0]
-        print "number of samples testset (problem_id)%d"%len(test_dict.keys())
+        print "number of samples testset (problem_id)= %d"%len(test_dict.keys())
         
-        perf, errors, labels_prob, Words = train_model_one_avg(rng,
+        perf, errors, labels_prob = train_model_one_avg(rng,
                               datasets,
                               U,
                               lr_decay=0.9,
