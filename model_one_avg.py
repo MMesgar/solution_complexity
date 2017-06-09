@@ -319,15 +319,27 @@ if __name__=="__main__":
         perf, errors, labels_prob = train_model_one_avg(rng,
                               datasets,
                               U,
-                              lr_decay=0.9,
-                              hidden_units=[500,1000,2], 
+                              lr_decay=0.95,
+                              hidden_units=[1000,
+                                            1000,
+                                            1000,
+                                            1000,
+                                            2], 
                               shuffle_batch=True, 
                               n_epochs=n_epochs, 
                               sqr_norm_lim=9.0,
                               non_static=non_static,
                               batch_size=batch_size,
-                              activations=[activations.Iden,activations.ReLU,activations.ReLU],
-                              dropout_rate=[dropout_rate,dropout_rate,dropout_rate])
+                              activations=[activations.ReLU,
+                                           activations.ReLU,
+                                           activations.ReLU,
+                                           activations.ReLU,
+                                           activations.Iden],
+                              dropout_rate=[dropout_rate,
+                                            dropout_rate,
+                                            dropout_rate,
+                                            dropout_rate,
+                                            dropout_rate])
         
         print "test perf:%f%% "%(perf*100)
         folds_acc.append(perf)
