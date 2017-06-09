@@ -236,16 +236,16 @@ def train_model_one_avg(rng,
             test_perf = 1 - test_error         
     return test_perf, errors, labels_probs
 #%%
-sys.argv = ['',
-            '-nonstatic',
-            '-word2vec',
-            1,
-            2,
-            0.5,
-            './data/corpus_all/',
-            './evalutions/nonstatic/',
-            600 # max_sent_len
-            ]
+#sys.argv = ['',
+#            '-nonstatic',
+#            '-word2vec',
+#            1,
+#            2,
+#            0.5,
+#            './data/corpus_all/',
+#            './evalutions/nonstatic/',
+#            600 # max_sent_len
+#            ]
 if __name__=="__main__":
     print "local start time :", time.asctime(time.localtime(time.time()) )
     # initialization
