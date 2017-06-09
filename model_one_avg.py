@@ -297,6 +297,8 @@ if __name__=="__main__":
     folds_rank_both_acc= []
     # iterate over each fold
     for i, fold in enumerate(folds):
+        if i>0:
+            break
         error_file_path = ''
         
 
