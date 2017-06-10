@@ -24,7 +24,7 @@ IN_DIR='./data/corpus_4_5/'
 
 mkdir -p $OUT_DIR
 
-THEANO_FLAGS=device=gpu1,floatX=float32,lib.cnmem=0.7 nohup python -u model_one_avg.py $MODE $WRD2VEC $N_EPOCHS $BATCH_SIZE  $DROPOUT_RATE $IN_DIR $OUT_DIR $max_sl > ./script_out/'$exp_id.log &
+THEANO_FLAGS=device=gpu1,floatX=float32,lib.cnmem=0.7 nohup python -u model_one_avg.py $MODE $WRD2VEC $N_EPOCHS $BATCH_SIZE  $DROPOUT_RATE $IN_DIR $OUT_DIR $max_sl > ./script_out/$exp_id.log &
 
 # corpus gr-5
 exp_id='one_avg_gr_5'
@@ -33,7 +33,7 @@ IN_DIR='./data/corpus_gr_5/'
 
 mkdir -p $OUT_DIR
 
-THEANO_FLAGS=device=gpu2,floatX=float32,lib.cnmem=0.7 nohup python -u model_one_avg.py $MODE $WRD2VEC $N_EPOCHS $BATCH_SIZE  $DROPOUT_RATE $IN_DIR $OUT_DIR $max_sl > ./script_out/'$exp_id.log  &
+THEANO_FLAGS=device=gpu2,floatX=float32,lib.cnmem=0.7 nohup python -u model_one_avg.py $MODE $WRD2VEC $N_EPOCHS $BATCH_SIZE  $DROPOUT_RATE $IN_DIR $OUT_DIR $max_sl > ./script_out/$exp_id.log  &
 
 # corpus all
 exp_id='one_avg_all'
@@ -42,4 +42,4 @@ IN_DIR='./data/corpus_all/'
 
 mkdir -p $OUT_DIR
 
-THEANO_FLAGS=device=gpu3,floatX=float32,lib.cnmem=0.7 nohup python -u model_one_avg.py $MODE $WRD2VEC $N_EPOCHS $BATCH_SIZE  $DROPOUT_RATE $IN_DIR $OUT_DIR $max_sl > ./script_out/'$exp_id.log  &
+THEANO_FLAGS=device=gpu3,floatX=float32,lib.cnmem=0.7 nohup python -u model_one_avg.py $MODE $WRD2VEC $N_EPOCHS $BATCH_SIZE  $DROPOUT_RATE $IN_DIR $OUT_DIR $max_sl > ./script_out/$exp_id.log  &
