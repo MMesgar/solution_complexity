@@ -83,8 +83,6 @@ def make_idx_data_cv(rng, dataset, word_idx_map, fold,  max_l=51,filter_h=5):
             train_y.append(label)
         elif prob_id in list(dev_probs):
             instance_x = sent1 + sent2 + sent3
-            # delete following line for the old version.
-            #if int(label) ==1 :
             dev_x.append(instance_x)
             dev_y.append(label)
         elif prob_id in list(test_probs):
@@ -102,7 +100,7 @@ def make_idx_data_cv(rng, dataset, word_idx_map, fold,  max_l=51,filter_h=5):
 ## 
 ###########################
             if int(label) ==1 :
-                if rng.uniform()>0.5:
+                if rng.uniform()>0.0:
                     instance_x = sent1 + sent2 + sent3
                     test_x.append(instance_x)
                     test_y.append(label)
