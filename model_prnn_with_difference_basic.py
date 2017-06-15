@@ -250,12 +250,11 @@ def train_model_rnn(rng,
 
     difference  = layer1_input3 - layer1_input2
        
-    layer1_input = T.concatenate([layer1_input1, layer1_input2, layer1_input3,difference],1) 
 
     
     # now we concatenate them parts of layer1_input to build the its input vector
     #shape = (bacth_size, hidden_dim+hidden_dim  +hidden_dim +hidden_dim) = (32,400)
-    layer1_input = T.concatenate([layer1_input1,layer1_input2,layer1_input3],1)
+    layer1_input = T.concatenate([layer1_input1, layer1_input2, layer1_input3,difference],1) 
     
     hidden_units[0] = hidden_dim + hidden_dim + hidden_dim + hidden_dim  
     
