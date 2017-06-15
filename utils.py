@@ -100,7 +100,7 @@ def make_idx_data_cv(rng, dataset, word_idx_map, fold,  max_l=51,filter_h=5):
 ## 
 ###########################
             if int(label) ==1 :
-                if rng.uniform()>0.0:
+                if rng.uniform()>0.5:
                     instance_x = sent1 + sent2 + sent3
                     test_x.append(instance_x)
                     test_y.append(label)
