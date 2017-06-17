@@ -281,7 +281,7 @@ def train_model_rnn(rng,
     cost = classifier.negative_log_likelihood(y) 
     dropout_cost = classifier.dropout_negative_log_likelihood(y) 
     #grad_updates = sgd_updates_adadelta(params, dropout_cost, lr_decay, 1e-6, sqr_norm_lim)
-    grad_updates = SGD(learning_rate=0.01, params=params).updates(loss= dropout_cost)
+    grad_updates = SGD(learning_rate=0.1, params=params).updates(loss= dropout_cost)
     
     #shuffle dataset and assign to mini batches. if dataset size is not a multiple of mini batches, replicate 
     #extra data (at random)
@@ -396,18 +396,18 @@ def train_model_rnn(rng,
     epoch = 0
     best_val_perf = 0
     val_perf = 0
-    test_perf = 0       
-    cost_epoch = 0    
+    test_perf = 0            
     while (epoch < n_epochs):
+        cost_epoch = 0
         start_time = time.time()
         epoch = epoch + 1
         if shuffle_batch:
             for minibatch_index in rng.permutation(range(n_train_batches)):
-                cost_epoch = train_model(minibatch_index)
+                cost_epoch += train_model(minibatch_index)
                 set_zero(zero_vec)
         else:
             for minibatch_index in xrange(n_train_batches):
-                cost_epoch = train_model(minibatch_index)  
+                cost_epoch += train_model(minibatch_index)  
                 set_zero(zero_vec)
         
         train_losses = [test_model(i) for i in xrange(n_train_batches)]
