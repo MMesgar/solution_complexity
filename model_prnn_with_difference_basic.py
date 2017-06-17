@@ -250,7 +250,6 @@ def train_model_rnn(rng,
 
     difference  = layer1_input3 - layer1_input2
        
-
     
     # now we concatenate them parts of layer1_input to build the its input vector
     #shape = (bacth_size, hidden_dim+hidden_dim  +hidden_dim +hidden_dim) = (32,400)
@@ -281,8 +280,8 @@ def train_model_rnn(rng,
     # cost function
     cost = classifier.negative_log_likelihood(y) 
     dropout_cost = classifier.dropout_negative_log_likelihood(y) 
-    grad_updates = sgd_updates_adadelta(params, dropout_cost, lr_decay, 1e-6, sqr_norm_lim)
-
+    #grad_updates = sgd_updates_adadelta(params, dropout_cost, lr_decay, 1e-6, sqr_norm_lim)
+    grad_updates = SGD(learning_rate=0.01, params=params).updates(loss= dropout_cost)
     
     #shuffle dataset and assign to mini batches. if dataset size is not a multiple of mini batches, replicate 
     #extra data (at random)
@@ -415,7 +414,7 @@ def train_model_rnn(rng,
         train_perf = 1 - np.mean(train_losses)
         val_losses = [val_model(i) for i in xrange(n_val_batches)]
         val_perf = 1- np.mean(val_losses)                        
-        print('epoch: %i, training time: %.2f secs, train perf: %.2f %%, val perf: %.2f %%' % (epoch, time.time()-start_time, train_perf * 100., val_perf*100.))
+        print('epoch: %i, training time: %.2f secs, train perf: %.2f %%, val perf: %.2f %%, train cost: %.2f' % (epoch, time.time()-start_time, train_perf * 100., val_perf*100., cost_epoch))
         if val_perf >= best_val_perf:
             best_val_perf = val_perf
             test_error, errors, labels_probs = test_model_all(test_set_x,test_set_y)        
