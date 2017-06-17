@@ -280,8 +280,7 @@ def train_model_rnn(rng,
     # cost function
     cost = classifier.negative_log_likelihood(y) 
     dropout_cost = classifier.dropout_negative_log_likelihood(y) 
-    #grad_updates = sgd_updates_adadelta(params, dropout_cost, lr_decay, 1e-6, sqr_norm_lim)
-    grad_updates = SGD(learning_rate=0.1, params=params).updates(loss= dropout_cost)
+    grad_updates = sgd_updates_adadelta(params, dropout_cost, lr_decay, 1e-6, sqr_norm_lim)
     
     #shuffle dataset and assign to mini batches. if dataset size is not a multiple of mini batches, replicate 
     #extra data (at random)
@@ -498,7 +497,7 @@ if __name__=="__main__":
         perf, errors,labels_prob = train_model_rnn(rng,
                               datasets,
                               U,
-                              lr_decay=0.9,
+                              lr_decay=0.95,
                               #hidden_units is tricky:
                                   # in CNN:
                                       # hidden_units[0] is number of feature_maps
