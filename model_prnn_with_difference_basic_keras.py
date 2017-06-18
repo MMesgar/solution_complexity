@@ -24,7 +24,8 @@ def train_model_rnn(rng,
                     dropout_rate,
                     n_epochs, 
                     batch_size,
-                    lr
+                    lr,
+                    clip_value
                     ):
     
     
@@ -118,7 +119,7 @@ def train_model_rnn(rng,
 
     model.compile(loss='categorical_crossentropy',
                    optimizer=keras.optimizers.Adadelta(lr=lr,
-                                                       clipvalue=1.0),
+                                                       clipvalue=clip_value),
                    metrics=['accuracy'])
 
     print('training ...')
@@ -140,20 +141,6 @@ def train_model_rnn(rng,
     
 
 
-
-#    model1.add(emb_layer)
-#    
-#    model1.add(nn_model)
-#    
-#    model1.add(Dense(units=3*hidden_units[1],activation= "relu"))
-#    model1.add(Dropout(rate=hidden_units[2],seed=init_seed))
-#    
-#    model1.add(Dense(units=hidden_units[-1]))
-#    model1.add(Activation('softmax'))
-#    model1.add(Dropout(rate=hidden_units[-1],seed=init_seed))
-#
-
-
 #    input_array  = x_train[0:2]
 #    print input_array.shape
 #    output_array = model1.predict(input_array)
@@ -172,17 +159,17 @@ def load_data(rng,
     indices = rng.permutation(num_train_samples)
     input_train = (input_train[0][indices],input_train[1][indices])
      
-    train_set_x = input_train[0][:10]
-    train_set_y = keras.utils.to_categorical(input_train[1][:10],num_classes=2)
+    train_set_x = input_train[0]
+    train_set_y = keras.utils.to_categorical(input_train[1],num_classes=2)
     
    
-    val_set_x = input_valid[0][:5]
-    val_set_y = keras.utils.to_categorical(input_valid[1][:5],num_classes=2)
+    val_set_x = input_valid[0]
+    val_set_y = keras.utils.to_categorical(input_valid[1],num_classes=2)
     
     
     #build test_set
-    test_set_x = input_test[0][:5]
-    test_set_y = keras.utils.to_categorical(input_test[1][:5],num_classes=2)
+    test_set_x = input_test[0]
+    test_set_y = keras.utils.to_categorical(input_test[1],num_classes=2)
 
     
     return (train_set_x,train_set_y), (val_set_x,val_set_y), (test_set_x, test_set_y)
@@ -272,7 +259,8 @@ if __name__=="__main__":
                                       2], # units in output layer
                         n_epochs=40, 
                         batch_size=64,
-                        lr= 0.9,
+                        lr= 0.1,
+                        clip_value=1.5,
                         dropout_rate=[dropout_rate,#embeddings
                                       dropout_rate,#RNN
                                       dropout_rate,#HL
