@@ -185,8 +185,8 @@ sys.argv = ['',
             '-word2vec',
             1,
             2,
-            0.5,#drop_out
-            './data/corpus_all/',
+            0.0,#drop_out
+            './data/corpus_2_3/',
             './evalutions/nonstatic/',
             600]
 if __name__=="__main__":
@@ -254,13 +254,13 @@ if __name__=="__main__":
         train_model_rnn(rng,
                         datasets,
                         U,
-                        hidden_units=[10,#RNN output size
-                                      20,#units in HL
+                        hidden_units=[1000,#RNN output size
+                                      1000,#units in HL
                                       2], # units in output layer
-                        n_epochs=40, 
-                        batch_size=64,
-                        lr= 0.1,
-                        clip_value=1.5,
+                        n_epochs=50, 
+                        batch_size=32,
+                        lr= 0.01,
+                        clip_value=9,
                         dropout_rate=[dropout_rate,#embeddings
                                       dropout_rate,#RNN
                                       dropout_rate,#HL
