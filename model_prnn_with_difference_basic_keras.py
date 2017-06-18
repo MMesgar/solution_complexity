@@ -203,15 +203,15 @@ import sys
 import cPickle
 from evaluation import fold_output_evaluation,load_problem_solutions
 from utils import debug_print,shared_dataset,get_idx_from_sent,make_idx_data_cv,print_errors_in_file
-sys.argv = ['',
-            '-nonstatic',
-            '-word2vec',
-            1,
-            2,
-            0.0,#drop_out
-            './data/corpus_2_3/',
-            './evalutions/nonstatic/',
-            600]
+#sys.argv = ['',
+#            '-nonstatic',
+#            '-word2vec',
+#            1,
+#            2,
+#            0.0,#drop_out
+#            './data/corpus_2_3/',
+#            './evalutions/nonstatic/',
+#            600]
 if __name__=="__main__":
     print "local start time :", time.asctime(time.localtime(time.time()) )
     # initialization
