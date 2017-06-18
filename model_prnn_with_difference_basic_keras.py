@@ -264,10 +264,12 @@ if __name__=="__main__":
     folds_rankn_acc = []
     folds_rank_both_acc= []
   
-    error_file_path = ''
+    
 
     # iterate over each fold
     for i, fold in enumerate(folds):
+        error_file_path = ''
+        
         #construct train and test sets
         datasets, test_dict = make_idx_data_cv(rng, ds, word_idx_map, fold,
                                     max_l=max_sent_len,  filter_h=5)
