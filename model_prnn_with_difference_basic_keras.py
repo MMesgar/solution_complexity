@@ -10,11 +10,12 @@ init_seed=123456
 np.random.seed(init_seed)
 
 import keras
-from keras.models import Sequential
-from keras.layers import Dense, Embedding,Dropout,Activation,merge
+from keras.layers import Dense, Embedding,Dropout,merge
 from keras.layers import SimpleRNN
 from keras.models import Model
 from keras.layers import Input
+import warnings
+warnings.filterwarnings("ignore") 
 
 #%%
 def train_model_rnn(rng,
@@ -37,7 +38,7 @@ def train_model_rnn(rng,
 
 #%%
     # define 3 parallel neural nets
-    sent_w = x_train.shape[1]/3
+
     input_shape = (x_train.shape[1],)
     inputs = Input(shape=input_shape)
     from keras.layers import Lambda
@@ -202,7 +203,7 @@ import time
 import sys
 import cPickle
 from evaluation import fold_output_evaluation,load_problem_solutions
-from utils import debug_print,shared_dataset,get_idx_from_sent,make_idx_data_cv,print_errors_in_file
+from utils import make_idx_data_cv,print_errors_in_file
 #sys.argv = ['',
 #            '-nonstatic',
 #            '-word2vec',
