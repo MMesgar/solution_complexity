@@ -286,8 +286,8 @@ if __name__=="__main__":
                         hidden_units=[1000,#RNN output size
                                       1000,#units in HL
                                       2], # units in output layer
-                        n_epochs=50, 
-                        batch_size=32,
+                        n_epochs=n_epochs, 
+                        batch_size=batch_size,
                         lr= 0.01,
                         clip_value=9,
                         dropout_rate=[dropout_rate,#embeddings
