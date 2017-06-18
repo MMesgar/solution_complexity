@@ -25,7 +25,8 @@ def train_model_rnn(rng,
                     n_epochs, 
                     batch_size,
                     lr,
-                    clip_value
+                    clip_value,
+                    model_dir
                     ):
     
     
@@ -122,15 +123,29 @@ def train_model_rnn(rng,
                                                        clipvalue=clip_value),
                    metrics=['accuracy'])
 
+
+    from keras.callbacks import ModelCheckpoint
+    model_chk_path = model_dir+'best.hdf5'
+    mcp = ModelCheckpoint(model_chk_path, monitor="val_acc",
+                      save_best_only=True, save_weights_only=False,mode='max')
+
     print('training ...')
     model.fit(x_train,
                y_train,
                batch_size=batch_size,
                epochs=n_epochs,
-               validation_data=(x_valid, y_valid)
+               validation_data=(x_valid, y_valid),
+               shuffle=True,
+               callbacks=[mcp]
                )
 
-
+    
+    model.load_weights(model_chk_path)
+    model.compile(loss='categorical_crossentropy',
+                  optimizer=keras.optimizers.Adadelta(lr=lr,
+                                                      clipvalue=clip_value),
+                  metrics=['accuracy'])
+    
     
     score, acc = model.evaluate(x_test,
                                  y_test,
@@ -139,6 +154,14 @@ def train_model_rnn(rng,
     print('Test score:', score)
     print('Test accuracy:', acc)
     
+    labels_prob =  model.predict(x_test)
+    
+    predicted_labels = np.argmax(labels_prob,axis=1)
+    gold_labels = y_test.nonzero()[1]
+    #compute the errors in the prediction
+    
+    errors= np.not_equal(predicted_labels,gold_labels)
+    return acc,  errors,labels_prob
 
 
 #    input_array  = x_train[0:2]
@@ -234,12 +257,17 @@ if __name__=="__main__":
     corpus_path = in_dir+'corpus.txt'
     problem_solutions = load_problem_solutions(corpus_path, clean_string= True)
 
+    # keep performance of each fold in results
+    folds_acc = []
+    folds_tau = []
+    folds_rank1_acc = []
+    folds_rankn_acc = []
+    folds_rank_both_acc= []
   
+    error_file_path = ''
 
     # iterate over each fold
     for i, fold in enumerate(folds):
-        if i>0:
-            break
         #construct train and test sets
         datasets, test_dict = make_idx_data_cv(rng, ds, word_idx_map, fold,
                                     max_l=max_sent_len,  filter_h=5)
@@ -251,6 +279,7 @@ if __name__=="__main__":
         print "number of test samples (triplets)= %d"%datasets[2][0].shape[0]
         print "number of samples testset (problem_id)=%d"%len(test_dict.keys())
         
+        perf, errors,labels_prob = \
         train_model_rnn(rng,
                         datasets,
                         U,
@@ -265,7 +294,33 @@ if __name__=="__main__":
                                       dropout_rate,#RNN
                                       dropout_rate,#HL
                                       dropout_rate#output_layer
-                                      ]
+                                      ],
+                        model_dir='./models/'
                         )
                               
             
+        print "test perf:%f%% "%(perf*100)
+        folds_acc.append(perf)
+        error_file_path += (output_dir+'fold'+str(i)+'.error')
+        found_problems = print_errors_in_file(labels_prob, errors, datasets[2], test_dict, word_idx_map, error_file_path)
+        print('number of found_problems in error:%d'%len(found_problems))
+        
+        fold_tau, results, acc = fold_output_evaluation(fold_path=error_file_path,
+                                             prob_solutions=problem_solutions)
+        print("results: %s"%results)
+        print("test tau: %f "%fold_tau)
+        print("test accuracies (rank1, rankn, rank_both) = ", acc)
+        folds_tau.append(fold_tau)
+        folds_rank1_acc.append(acc[0])
+        folds_rankn_acc.append(acc[1])
+        folds_rank_both_acc.append(acc[2])
+
+        
+    # compute the final results
+    print('The final accuracy is: %f'%np.mean(folds_acc))
+    print('The final tau is: %f'%np.mean(folds_tau))
+    print('The final rank_1 accuracy is: %f'%(np.mean(folds_rank1_acc)))
+    print('The final rank_n accuracy is: %f'%(np.mean(folds_rankn_acc)))
+    print('The final rank_both accuracy is: %f'%(np.mean(folds_rank_both_acc)))
+    print "local end time :", time.asctime(time.localtime(time.time()) )
+    print('Done')
