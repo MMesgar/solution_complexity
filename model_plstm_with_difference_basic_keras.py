@@ -269,8 +269,6 @@ if __name__=="__main__":
 
     # iterate over each fold
     for i, fold in enumerate(folds):
-        if i>1:
-            break
         error_file_path = ''
         
         #construct train and test sets
