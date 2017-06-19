@@ -126,9 +126,9 @@ def train_model_rnn(rng,
 
 
     from keras.callbacks import ModelCheckpoint
-    model_chk_path = model_dir+'best.hdf5'
+    model_chk_path = model_dir+'best_rnn.hdf5'
     mcp = ModelCheckpoint(model_chk_path, monitor="val_acc",
-                      save_best_only=True, save_weights_only=False,mode='max')
+                      save_best_only=True, save_weights_only=True,mode='max')
 
     print('training ...')
     model.fit(x_train,
