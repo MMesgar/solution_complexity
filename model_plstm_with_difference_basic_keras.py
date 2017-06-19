@@ -126,9 +126,9 @@ def train_model_lstm(rng,
 
 
     from keras.callbacks import ModelCheckpoint
-    model_chk_path = model_dir+'best.hdf5'
+    model_chk_path = model_dir+'best_lstm.hdf5'
     mcp = ModelCheckpoint(model_chk_path, monitor="val_acc",
-                      save_best_only=True, save_weights_only=False,mode='max')
+                      save_best_only=True, save_weights_only=True,mode='max')
 
     print('training ...')
     model.fit(x_train,
@@ -207,7 +207,7 @@ from utils import make_idx_data_cv,print_errors_in_file
 #sys.argv = ['',
 #            '-nonstatic',
 #            '-word2vec',
-#            1,
+#            2,
 #            2,
 #            0.0,#drop_out
 #            './data/corpus_2_3/',
@@ -269,6 +269,8 @@ if __name__=="__main__":
 
     # iterate over each fold
     for i, fold in enumerate(folds):
+        if i>1:
+            break
         error_file_path = ''
         
         #construct train and test sets
@@ -286,8 +288,8 @@ if __name__=="__main__":
         train_model_lstm(rng,
                         datasets,
                         U,
-                        hidden_units=[10,#RNN output size
-                                      10,#units in HL
+                        hidden_units=[1000,#RNN output size
+                                      1000,#units in HL
                                       2], # units in output layer
                         n_epochs=n_epochs, 
                         batch_size=batch_size,
