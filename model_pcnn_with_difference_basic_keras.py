@@ -133,7 +133,7 @@ def train_model_cnn(rng,
     
     out = merge([CNN1,CNN2,CNN3,diff], mode='concat', concat_axis=1)
     
-    out  = Dense(units=50,activation='relu')(out)
+    out  = Dense(units=hidden_units[1],activation='relu')(out)
 
     prediction = Dense(units=2,activation='softmax')(out)
 
@@ -226,15 +226,15 @@ import sys
 import cPickle
 from evaluation import fold_output_evaluation,load_problem_solutions
 from utils import make_idx_data_cv,print_errors_in_file
-sys.argv = ['',
-            '-nonstatic',
-            '-word2vec',
-            3,
-            2,
-            0.0,#drop_out
-            './data/corpus_all/',
-            './evalutions/nonstatic/',
-            600]
+#sys.argv = ['',
+#            '-nonstatic',
+#            '-word2vec',
+#            3,
+#            2,
+#            0.0,#drop_out
+#            './data/corpus_all/',
+#            './evalutions/nonstatic/',
+#            600]
 if __name__=="__main__":
     print "local start time :", time.asctime(time.localtime(time.time()) )
     # initialization
