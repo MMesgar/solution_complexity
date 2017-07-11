@@ -312,8 +312,8 @@ if __name__=="__main__":
         train_model_cnn(rng,
                         datasets,
                         U,
-                        hidden_units=[10,#CNN output size
-                                      10,#units in HL
+                        hidden_units=[1000,#CNN output size
+                                      1000,#units in HL
                                       2], # units in output layer
                         n_epochs=n_epochs, 
                         batch_size=batch_size,
