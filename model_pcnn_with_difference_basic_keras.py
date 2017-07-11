@@ -90,7 +90,7 @@ def train_model_cnn(rng,
                              activation="relu",
                              strides=1)(emb1)
         conv1 = GlobalMaxPooling1D()(conv1)
-        #conv1 = Flatten()(conv1)
+        
         conv_blocks1.append(conv1)
     CNN1 = Concatenate()(conv_blocks1) if len(conv_blocks1) > 1 else conv_blocks1[0]
 
@@ -103,7 +103,7 @@ def train_model_cnn(rng,
                              activation="relu",
                              strides=1)(emb2)
         conv2 = GlobalMaxPooling1D()(conv2)
-        #conv2 = Flatten()(conv2)
+        
         conv_blocks2.append(conv2)
     CNN2 = Concatenate()(conv_blocks2) if len(conv_blocks2) > 1 else conv_blocks2[0]
 
@@ -115,9 +115,9 @@ def train_model_cnn(rng,
                              padding="valid",
                              activation="relu",
                              strides=1)(emb3)
-        #conv3 = MaxPooling1D(pool_size=2)(conv3)
+        
         conv3 = GlobalMaxPooling1D()(conv3)
-        #conv3 = Flatten()(conv3)
+       
         conv_blocks3.append(conv3)
     CNN3 = Concatenate()(conv_blocks3) if len(conv_blocks3) > 1 else conv_blocks3[0]
 
@@ -133,11 +133,15 @@ def train_model_cnn(rng,
     
     out = merge([CNN1,CNN2,CNN3,diff], mode='concat', concat_axis=1)
     
+    out = Dropout(rate = dropout_rate[1],seed=init_seed)(out)
+    
     out  = Dense(units=hidden_units[1],activation='relu')(out)
 
+    out = Dropout(rate = dropout_rate[2],seed=init_seed)(out)
+    
     prediction = Dense(units=2,activation='softmax')(out)
 
-    prediction = Dropout(rate=dropout_rate[0],seed=init_seed)(prediction)
+    
     
     model = Model(inputs=inputs, output=prediction)
 
@@ -231,8 +235,8 @@ from utils import make_idx_data_cv,print_errors_in_file
 #            '-word2vec',
 #            3,
 #            2,
-#            0.0,#drop_out
-#            './data/corpus_all/',
+#            0.5,#drop_out
+#            './data/corpus_2_3/',
 #            './evalutions/nonstatic/',
 #            600]
 if __name__=="__main__":
@@ -316,9 +320,8 @@ if __name__=="__main__":
                         lr= 0.01,
                         clip_value=9,
                         dropout_rate=[dropout_rate,#embeddings
-                                      dropout_rate,#RNN
-                                      dropout_rate,#HL
-                                      dropout_rate#output_layer
+                                      dropout_rate,#CNN after merge
+                                      dropout_rate#HL
                                       ],
                         model_dir='./models/',
                         filter_sizes=[4,5]
