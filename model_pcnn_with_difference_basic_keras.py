@@ -319,7 +319,7 @@ if __name__=="__main__":
                         batch_size=batch_size,
                         lr= 0.01,
                         clip_value=9,
-                        dropout_rate=[dropout_rate,#embeddings
+                        dropout_rate=[0.0,#embeddings
                                       dropout_rate,#CNN after merge
                                       dropout_rate#HL
                                       ],
