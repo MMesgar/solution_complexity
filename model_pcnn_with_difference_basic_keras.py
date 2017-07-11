@@ -13,7 +13,7 @@ import keras
 from keras.layers import Dense, Embedding,Dropout,merge
 from keras.models import Model
 from keras.layers import Input
-from keras.layers import MaxPooling1D, Convolution1D,Flatten
+from keras.layers import MaxPooling1D, Convolution1D,Flatten,GlobalMaxPooling1D
 from keras.layers.merge import Concatenate
 import warnings
 warnings.filterwarnings("ignore") 
@@ -38,7 +38,6 @@ def train_model_cnn(rng,
     # load data
     (x_train,y_train), (x_valid,y_valid), (x_test,y_test) = load_data(rng,datasets)
 
-#%%
     # define 3 parallel neural nets
 
     input_shape = (x_train.shape[1],)
@@ -90,8 +89,8 @@ def train_model_cnn(rng,
                              padding="valid",
                              activation="relu",
                              strides=1)(emb1)
-        conv1 = MaxPooling1D(pool_size=2)(conv1)
-        conv1 = Flatten()(conv1)
+        conv1 = GlobalMaxPooling1D()(conv1)
+        #conv1 = Flatten()(conv1)
         conv_blocks1.append(conv1)
     CNN1 = Concatenate()(conv_blocks1) if len(conv_blocks1) > 1 else conv_blocks1[0]
 
@@ -103,8 +102,8 @@ def train_model_cnn(rng,
                              padding="valid",
                              activation="relu",
                              strides=1)(emb2)
-        conv2 = MaxPooling1D(pool_size=2)(conv2)
-        conv2 = Flatten()(conv2)
+        conv2 = GlobalMaxPooling1D()(conv2)
+        #conv2 = Flatten()(conv2)
         conv_blocks2.append(conv2)
     CNN2 = Concatenate()(conv_blocks2) if len(conv_blocks2) > 1 else conv_blocks2[0]
 
@@ -116,8 +115,9 @@ def train_model_cnn(rng,
                              padding="valid",
                              activation="relu",
                              strides=1)(emb3)
-        conv3 = MaxPooling1D(pool_size=2)(conv3)
-        conv3 = Flatten()(conv3)
+        #conv3 = MaxPooling1D(pool_size=2)(conv3)
+        conv3 = GlobalMaxPooling1D()(conv3)
+        #conv3 = Flatten()(conv3)
         conv_blocks3.append(conv3)
     CNN3 = Concatenate()(conv_blocks3) if len(conv_blocks3) > 1 else conv_blocks3[0]
 
@@ -133,7 +133,7 @@ def train_model_cnn(rng,
     
     out = merge([CNN1,CNN2,CNN3,diff], mode='concat', concat_axis=1)
     
-
+    out  = Dense(units=50,activation='relu')(out)
 
     prediction = Dense(units=2,activation='softmax')(out)
 
@@ -226,15 +226,15 @@ import sys
 import cPickle
 from evaluation import fold_output_evaluation,load_problem_solutions
 from utils import make_idx_data_cv,print_errors_in_file
-#sys.argv = ['',
-#            '-nonstatic',
-#            '-word2vec',
-#            3,
-#            2,
-#            0.0,#drop_out
-#            './data/corpus_2_3/',
-#            './evalutions/nonstatic/',
-#            600]
+sys.argv = ['',
+            '-nonstatic',
+            '-word2vec',
+            3,
+            2,
+            0.0,#drop_out
+            './data/corpus_all/',
+            './evalutions/nonstatic/',
+            600]
 if __name__=="__main__":
     print "local start time :", time.asctime(time.localtime(time.time()) )
     # initialization
@@ -308,8 +308,8 @@ if __name__=="__main__":
         train_model_cnn(rng,
                         datasets,
                         U,
-                        hidden_units=[1000,#CNN output size
-                                      1000,#units in HL
+                        hidden_units=[10,#CNN output size
+                                      10,#units in HL
                                       2], # units in output layer
                         n_epochs=n_epochs, 
                         batch_size=batch_size,
